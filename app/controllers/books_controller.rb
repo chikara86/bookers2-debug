@@ -1,4 +1,5 @@
 class BooksController < ApplicationController
+  before_action :ensure_current_user, only: [:edit]
 
   def show
     @book = Book.find(params[:id])
@@ -37,15 +38,28 @@ class BooksController < ApplicationController
     end
   end
 
-  def delete
+  def destroy
     @book = Book.find(params[:id])
-    @book.destoy
+    @book.destroy
     redirect_to books_path
   end
 
   private
 
+
+  def ensure_current_user
+    @book = Book.find(params[:id])
+    if current_user.id != @book.user.id
+    flash[:notice]="権限がありません"
+    redirect_to books_path
+    end
+  end
+
+
+
   def book_params
     params.require(:book).permit(:title, :image, :body)
   end
+
+
 end
